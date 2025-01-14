@@ -22,6 +22,6 @@
     @apply w-full rounded-full bg-cyan-500 text-white shadow-lg shadow-cyan-200/50 p-[10px] my-1 hover:bg-cyan-100 hover:text-primary transition-all duration-300 ease-in-out font-semibold
   }
   .btn-light {
-    @apply w-full rounded-full bg-cyan-100 text-primary shadow-lg shadow shadow-cyan-200/50 p-[10px] my-1 hover:bg-cyan-500 hover:text-white transition-all duration-300 ease-in-out font-semibold
+    @apply w-full rounded-full bg-cyan-100 text-primary p-[10px] my-1 hover:bg-cyan-500 hover:text-white transition-all duration-300 ease-in-out font-semibold
   }
 }
