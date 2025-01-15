@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import PasswordInput from '../../components/input/PasswordInput'
 import { useNavigate } from "react-router-dom"
 import { validateEmail } from '../../utils/helper';
+import axiosInstance from '../../utils/axiosInstance';
 
 const Login = () => {
 
@@ -15,7 +16,7 @@ const [error, setError] = useState(null);
     e.preventDefault();
     
     if(!validateEmail(email)) {
-      setError("Please enter a valid amail address.");
+      setError("Please enter a valid email address.");
       return;
     }
 
@@ -26,7 +27,25 @@ const [error, setError] = useState(null);
     setError("");
 
     //Api Call
+    try {
+      const response = await axiosInstance.post("/login", { email, password });
     
+      if (response?.data?.accessToken) {
+        localStorage.setItem("token", response.data.accessToken);
+        navigate("/dashboard");
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    } catch (error) {
+      const { response } = error;
+      if (response?.data?.message) {
+        setError(response.data.message);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    }
+    
+
   }
   return (
     <div className='overflow-hidden bg-cyan-50 h-screen relative'>
