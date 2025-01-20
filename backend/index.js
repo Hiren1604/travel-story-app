@@ -253,26 +253,27 @@ app.post("/delete-story/:id", authenticateToken, async (req, res) => {
 });
 
 //Update isFavorite
-app.put("/update-fav/:id",authenticateToken, async (req,res)=> {
-   const {id} = req.params;
-   const {userId} = req.user;
-   const {isFavorite} = req.body;
-
-   try {
-     const travelStory = await TravelStory.findOne({_id: id, userId: userId});
-     if(!travelStory) {
-        return res.status(404),json({error: true, message: "Travel Story not found"})
-     }
-
-     travelStory.isFavourite = isFavorite;
-
-     await travelStory.save();
-     res.status(200).json({story: travelStory, message: "Update Successful"});
-   }
-   catch (err) {
-    return res.status(400).json({ error: true, message: err.message });
-   }
-} )
+app.put("/update-fav/:id", authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.user;
+    const { isFavorite } = req.body;
+  
+    try {
+      const travelStory = await TravelStory.findOne({ _id: id, userId: userId });
+      if (!travelStory) {
+        return res.status(404).json({ error: true, message: "Travel Story not found" });
+      }
+  
+      travelStory.isFavourite = isFavorite;
+      await travelStory.save();
+  
+      res.status(200).json({ story: travelStory, message: "Update Successful" });
+    } catch (err) {
+      console.error("Error updating favorite status:", err.message);
+      return res.status(500).json({ error: true, message: "Internal Server Error" });
+    }
+  });
+  
 
 //Search Travel Stories
 app.get("/search", authenticateToken, async(req,res)=> {
