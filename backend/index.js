@@ -222,7 +222,7 @@ app.put("/edit-story/:id", authenticateToken, async (req, res) => {
 });
 
 //Delete Travel Story
-app.post("/delete-story/:id", authenticateToken, async (req, res) => {
+app.delete("/delete-story/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { userId } = req.user;
     try {

@@ -19,11 +19,11 @@ const ViewTravelStory = ({ storyInfo, onEditClick, onDeleteClick, onClose }) => 
                 </div>
             </div>
             <div>
-                <div className='flex-1 flex flex-col gap-2 py-4'>
+                <div className='flex-1 flex flex-col gap-2 py-3'>
                     <h1 className='text-2xl text-slate-950 font-semibold'>{storyInfo && storyInfo.title}</h1>
                 </div>
                 <div className='flex items-center justify-between gap-3'>
-                    <span className='text-md text-slate-800'>
+                    <span className='text-md text-slate-800 font-medium'>
                         {storyInfo && moment(storyInfo.visitedDate).format("Do MMM YYYY")}
                     </span>
                     <div className='inline-flex items-center gap-2 text-[13px] text-cyan-600 bg-cyan-200/40 rounded px-2 py-1 font-medium'>

@@ -29,12 +29,12 @@ const TravelStoryCard = ({
         <div className='flex items-center gap-3'>
           <div className='flex-1'>
             <h6 className='text-md font-bold'>{title}</h6>
-            <span className='text-sm text-slate-500 font-semibold'>
+            <span className='text-sm text-slate-700 font-semibold'>
               {date ? moment(date).format("Do MMMM YYYY") : "-"}
             </span>
           </div>
         </div>
-        <p className='text-sm text-slate-900 mt-2'>{story?.slice(0, 60)}</p>
+        <p className='text-sm text-slate-900 mt-2'>{story?.slice(0, 60)}...</p>
         <div className='inline-flex items-center gap-2 text-[13px] bg-cyan-200/40 rounded mt-3 px-2 py-1 text-cyan-600 font-bold'>
           <GrMapLocation className='text-xs' />
           {visitedLocation.map((item, index) => (

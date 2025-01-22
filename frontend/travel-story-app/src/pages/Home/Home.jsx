@@ -9,6 +9,8 @@ import { MdAdd } from "react-icons/md";
 import Modal from "react-modal"
 import AddEditTravelStory from './AddEditTravelStory';
 import ViewTravelStory from './ViewTravelStory';
+import EmptyCard from '../../components/Cards/EmptyCard';
+import EmptyImg from '../../assets/images/empty.png'
 
 const Home = () => {
   const navigate = useNavigate();
@@ -69,7 +71,6 @@ const Home = () => {
         : story
     );
 
-    // Optimistically update the UI
     setAllStories(updatedStories);
 
     try {
@@ -91,6 +92,24 @@ const Home = () => {
       toast.error("Failed to update the story. Please try again.");
     }
   };
+
+  const deleteTravelStory = async (data) => {
+    const storyId = data._id;
+
+    try {
+        const response = await axiosInstance.delete(`/delete-story/${storyId}`);
+
+        if (response.data && !response.data.error) {
+            toast.error("Story Deleted Successfully");
+            setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
+            getAllTravelStories();
+        }
+    } catch (err) {
+        console.error("Error deleting story:", err);
+        toast.error("Error deleting story: " + err.message);
+    }
+};
+
 
 
   useEffect(() => {
@@ -122,14 +141,14 @@ const Home = () => {
                 ))}
               </div>
             ) : (
-              <>Empty Card</>
+              <EmptyCard imgSrc={EmptyImg} message={`Start Creating your First Travel Story, Click on the 'Add' button to jot down your thoughts, ideas and memories. Let's Get Started!`}/>
             )}
           </div>
           <div className="w-[320px]"></div>
         </div>
       </div>
       <Modal isOpen={openAddEditModal.isShown} onRequestClose={() => { }} style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 99 } }} appElement={document.getElementById("root")} className="model-box"><AddEditTravelStory type={openAddEditModal.type} storyInfo={openAddEditModal.data} onClose={() => { setOpenAddEditModal({ isShown: false, type: "add", data: null }) }} getAllTravelStories={getAllTravelStories} /></Modal>
-      <Modal isOpen={openViewModal.isShown} onRequestClose={() => { }} style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 99 } }} appElement={document.getElementById("root")} className="model-box"><ViewTravelStory storyInfo={openViewModal.data || null} onClose={() => {setOpenViewModal((prevState)=>({...prevState, isShown: false}))}} onEditClick={() => {setOpenViewModal((prevState)=>({...prevState, isShown: false})); handleEdit(openViewModal.data || null)}} onDeleteClick={() => { }} /></Modal>
+      <Modal isOpen={openViewModal.isShown} onRequestClose={() => { }} style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 99 } }} appElement={document.getElementById("root")} className="model-box"><ViewTravelStory storyInfo={openViewModal.data || null} onClose={() => { setOpenViewModal((prevState) => ({ ...prevState, isShown: false })) }} onEditClick={() => { setOpenViewModal((prevState) => ({ ...prevState, isShown: false })); handleEdit(openViewModal.data || null) }} onDeleteClick={() => { deleteTravelStory(openViewModal.data || null) }} /></Modal>
       <button
         className="h-16 w-16 flex items-center justify-center rounded-full bg-primary hover:bg-cyan-400 fixed right-10 bottom-10 font-bold text-[32px] text-white"
         onClick={() =>
