@@ -5,9 +5,10 @@ import axiosInstance from '../../utils/axiosInstance';
 import TravelStoryCard from '../../components/Cards/TravelStoryCard';
 import { ToastContainer, toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
-import {MdAdd} from "react-icons/md";
+import { MdAdd } from "react-icons/md";
 import Modal from "react-modal"
 import AddEditTravelStory from './AddEditTravelStory';
+import ViewTravelStory from './ViewTravelStory';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -17,6 +18,10 @@ const Home = () => {
     isShown: false,
     type: "add",
     data: null
+  });
+  const [openViewModal, setOpenViewModal] = useState({
+    isShown: false,
+    data: null,
   });
 
   const getUserInfo = async () => {
@@ -53,7 +58,7 @@ const Home = () => {
   };
 
   const handleViewStory = (data) => {
-    
+    setOpenViewModal({ isShown: true, data })
   };
 
   const updateIsFavorite = async (storyData) => {
@@ -63,15 +68,15 @@ const Home = () => {
         ? { ...story, isFavorite: !story.isFavorite }
         : story
     );
-  
+
     // Optimistically update the UI
     setAllStories(updatedStories);
-  
+
     try {
       const response = await axiosInstance.put(`/update-fav/${storyId}`, {
         isFavorite: !storyData.isFavorite,
       });
-  
+
       if (response.data && response.data.story) {
         toast.success("Story updated successfully");
       }
@@ -86,7 +91,7 @@ const Home = () => {
       toast.error("Failed to update the story. Please try again.");
     }
   };
-  
+
 
   useEffect(() => {
     getAllTravelStories();
@@ -123,14 +128,15 @@ const Home = () => {
           <div className="w-[320px]"></div>
         </div>
       </div>
-      <Modal isOpen={openAddEditModal.isShown} onRequestClose={()=>{}} style={{overlay:{backgroundColor: "rgba(0,0,0,0.2)", zIndex: 99}}} appElement={document.getElementById("root")} className="model-box"><AddEditTravelStory type={openAddEditModal.type} storyInfo={openAddEditModal.data} onClose={()=>{setOpenAddEditModal({isShown: false, type: "add", data: null})}} getAllTravelStories={getAllTravelStories}/></Modal>
+      <Modal isOpen={openAddEditModal.isShown} onRequestClose={() => { }} style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 99 } }} appElement={document.getElementById("root")} className="model-box"><AddEditTravelStory type={openAddEditModal.type} storyInfo={openAddEditModal.data} onClose={() => { setOpenAddEditModal({ isShown: false, type: "add", data: null }) }} getAllTravelStories={getAllTravelStories} /></Modal>
+      <Modal isOpen={openViewModal.isShown} onRequestClose={() => { }} style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 99 } }} appElement={document.getElementById("root")} className="model-box"><ViewTravelStory storyInfo={openViewModal.data || null} onClose={() => {setOpenViewModal((prevState)=>({...prevState, isShown: false}))}} onEditClick={() => {setOpenViewModal((prevState)=>({...prevState, isShown: false})); handleEdit(openViewModal.data || null)}} onDeleteClick={() => { }} /></Modal>
       <button
         className="h-16 w-16 flex items-center justify-center rounded-full bg-primary hover:bg-cyan-400 fixed right-10 bottom-10 font-bold text-[32px] text-white"
         onClick={() =>
           setOpenAddEditModal({ isShown: true, type: "add", data: null })
         }
       >
-        <MdAdd className='text-[32px] text-white'/>
+        <MdAdd className='text-[32px] text-white' />
       </button>
       <ToastContainer />
     </>
