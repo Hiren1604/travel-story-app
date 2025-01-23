@@ -11,6 +11,11 @@ import AddEditTravelStory from './AddEditTravelStory';
 import ViewTravelStory from './ViewTravelStory';
 import EmptyCard from '../../components/Cards/EmptyCard';
 import EmptyImg from '../../assets/images/empty.png'
+import { DayPicker } from 'react-day-picker';
+import moment from "moment"
+import FilterInfo from '../../components/Cards/FilterInfo';
+import { getEmptyCardMessage } from '../../utils/helper';
+
 
 const Home = () => {
   const navigate = useNavigate();
@@ -25,6 +30,9 @@ const Home = () => {
     isShown: false,
     data: null,
   });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setfilterType] = useState('');
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
 
   const getUserInfo = async () => {
     try {
@@ -80,6 +88,15 @@ const Home = () => {
 
       if (response.data && response.data.story) {
         toast.success("Story updated successfully");
+        // if(filterType === "search" && searchQuery) {
+        //   onSearchStory(searchQuery);
+        // }
+        // else if(filterType == "date") {
+        //    filterStoriesByDate(dateRange)
+        // }
+        // else {
+        //   getAllTravelStories()
+        // }
       }
     } catch (err) {
       const revertedStories = updatedStories.map((story) =>
@@ -97,20 +114,77 @@ const Home = () => {
     const storyId = data._id;
 
     try {
-        const response = await axiosInstance.delete(`/delete-story/${storyId}`);
+      const response = await axiosInstance.delete(`/delete-story/${storyId}`);
 
-        if (response.data && !response.data.error) {
-            toast.error("Story Deleted Successfully");
-            setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
-            getAllTravelStories();
-        }
+      if (response.data && !response.data.error) {
+        toast.error("Story Deleted Successfully");
+        setOpenViewModal((prevState) => ({ ...prevState, isShown: false }));
+        getAllTravelStories();
+      }
     } catch (err) {
-        console.error("Error deleting story:", err);
-        toast.error("Error deleting story: " + err.message);
+      console.error("Error deleting story:", err);
+      toast.error("Error deleting story: " + err.message);
     }
-};
+  };
 
+  const onSearchStory = async (query) => {
+    if (!query) {
+      toast.error("Please enter a search term.");
+      return;
+    }
 
+    try {
+      const response = await axiosInstance.get("/search", {
+        params: { query },
+      });
+
+      if (response.data && response.data.stories) {
+        setfilterType("search");
+        setAllStories(response.data.stories);
+      }
+    } catch (err) {
+      console.error("Error fetching stories:", err);
+      toast.error("Error fetching stories: " + err.message);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setfilterType("");
+    getAllTravelStories();
+  }
+
+  const filterStoriesByDate = async (day) => {
+    try {
+      const startDate = day.from ? moment(day.from).valueOf() : null;
+      const endDate = day.to ? moment(day.to).valueOf() : null;
+      if(startDate && endDate) {
+        const response = await axiosInstance.get("/filter", {
+          params: {startDate, endDate},
+        });
+        if(response.data && response.data.stories) {
+          setfilterType("date");
+          setAllStories(response.data.stories);
+        }
+      } 
+    }
+    catch (err) {
+      console.error("Error filtering stories:", err);
+      toast.error("Error filtering stories: " + err.message);
+    }
+  };
+
+  const handleDayClick = (range) => {
+    setDateRange(range);
+    if (range.from && range.to) {
+      filterStoriesByDate(range);
+    }
+  };
+
+  const resetFilter = ()=>{
+    setDateRange({from:null, to:null});
+    setfilterType("");
+    getAllTravelStories();
+  }
 
   useEffect(() => {
     getAllTravelStories();
@@ -119,8 +193,20 @@ const Home = () => {
 
   return (
     <>
-      <Navbar userInfo={userInfo} />
+      <Navbar
+        userInfo={userInfo}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onSearchNote={onSearchStory}
+        handleClearSearch={handleClearSearch}
+      />
+
       <div className="container mx-auto py-10 px-7">
+        <FilterInfo 
+        filterType={filterType}
+        filterDates={dateRange}
+        onClear={()=>{resetFilter()}}
+        />
         <div className="flex gap-7">
           <div className="flex-1">
             {allStories.length > 0 ? (
@@ -141,10 +227,22 @@ const Home = () => {
                 ))}
               </div>
             ) : (
-              <EmptyCard imgSrc={EmptyImg} message={`Start Creating your First Travel Story, Click on the 'Add' button to jot down your thoughts, ideas and memories. Let's Get Started!`}/>
+              <EmptyCard imgSrc={EmptyImg} message={getEmptyCardMessage(filterType)} />
             )}
           </div>
-          <div className="w-[320px]"></div>
+          <div className="w-[320px]">
+            <div className='bg-white border border-slate-200 shadow-slate-200/60 rounded-lg'>
+              <div className='p-3'>
+                <DayPicker
+                  captionLayout="dropdown-buttons"
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={handleDayClick}
+                  pagedNavigation
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <Modal isOpen={openAddEditModal.isShown} onRequestClose={() => { }} style={{ overlay: { backgroundColor: "rgba(0,0,0,0.2)", zIndex: 99 } }} appElement={document.getElementById("root")} className="model-box"><AddEditTravelStory type={openAddEditModal.type} storyInfo={openAddEditModal.data} onClose={() => { setOpenAddEditModal({ isShown: false, type: "add", data: null }) }} getAllTravelStories={getAllTravelStories} /></Modal>

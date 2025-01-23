@@ -16,8 +16,21 @@ const User = require("./models/user.models");
 const TravelStory = require("./models/travelStory.models");
 
 mongoose.connect(config.connectionString, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000 // Timeout after 5s instead of 30s
+})
+.then(() => console.log('Connected to MongoDB'))
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
+
+const db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', function() {
+  console.log("MongoDB database connection established successfully");
 });
 
 const app = express();
@@ -323,7 +336,7 @@ app.get("/filter", authenticateToken, async (req, res)=> {
 
 
 app.listen(8000, () => {
-    console.log("Server is running on port 8000");
+  console.log("Server is running on port 8000");
 });
 
 module.exports = app;
