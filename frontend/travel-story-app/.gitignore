@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 backend/.env
+backend/config.json
 
 # Editor directories and files
 .vscode/*
